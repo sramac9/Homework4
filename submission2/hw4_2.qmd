@@ -1,0 +1,139 @@
+---
+title: "Homework 4"
+subtitle: "Research in Health Economics, Spring 2025"
+author: "Sammy Ramacher"
+format:
+    pdf: 
+        output-file: "RamacherS_hwk4-2"
+        output-ext: "pdf"
+        header-includes: 
+            - \usepackage{float}
+            - \floatplacement{table}{H}
+knitr:
+    opts_chunk:
+        warning: false
+
+---
+```{r}
+#| include: false
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes, fixest,
+               scales, gganimate, gapminder, gifski, png, tufte, plotly, OECD, knitr,
+               ggrepel, survey, foreign, devtools, pdftools, kableExtra, modelsummary,
+               kableExtra, broom)
+
+
+
+            
+```
+
+```{r}
+#| include: false
+#| eval: true
+
+final.data <- read_rds("/Users/sammyram/Documents/git/Github/Homework-4/submission1/data/output/final_ma_data.rds")
+load("/Users/sammyram/Documents/git/Github/Homework-4/submission2/hwk4_workspace.Rdata")
+```
+The GitHub repository for this work is available [here](https://https://github.com/sramac9/Homework_4).
+
+
+\newpage
+# Summarize the Data
+
+\noindent Question 1. Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many?
+
+```{r}
+#| echo=FALSE, fig.show='hold'
+plan.counts.plot
+```
+\newpage
+
+\noindent Question 2. Provide bar graphs showing the distribution of star ratings in 2010, 2012, and 2015. How has this distribution changed over time?
+```{r}
+#| echo=FALSE, fig.show='hold'
+star.dist.15
+```
+\newpage
+
+\noindent Question 3. Plot the average benchmark payment over time from 2010 through 2015. How much has the average benchmark payment risen over the years?
+```{r}
+#| echo=FALSE, fig.show='hold'
+bench.plt
+```
+\newpage
+
+\noindent Quesiton 4. Plot the average share of Medicare Advantage (relative to all Medicare eligibles) over time from 2010 through 2015. Has Medicare Advantage increased or decreased in popularity? How does this share correlate with benchmark payments?
+
+```{r} 
+#| echo: false
+#| label: fig-adv-share
+#| fig-cap: "Average Medicare Advantage Share of Medicare Eligibles (2010–2015)"
+
+print(adv_share_plt)
+```
+\newpage 
+
+\noindent Question 5. Calculate the running variable underlying the star rating. Provide a table showing the number of plans that are rounded up into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star rating.
+
+```{r} 
+#| echo: false
+#| label: fig-rating
+#| fig-cap: "Number of Plans by Rounded Star Rating" 
+
+rounded_counts <- data_2010 %>%
+  mutate(rounded_30=ifelse(raw_rating>=2.75 & raw_rating<3.00 & Star_Rating==3.0,1,0), 
+         rounded_35=ifelse(raw_rating>=3.25 & raw_rating<3.50 & Star_Rating==3.5,1,0),
+         rounded_40=ifelse(raw_rating>=3.75 & raw_rating<4.00 & Star_Rating==4.0,1,0),
+         rounded_45=ifelse(raw_rating>=4.25 & raw_rating<4.50 & Star_Rating==4.5,1,0), 
+         rounded_50=ifelse(raw_rating>=4.75 & raw_rating<5.00 & Star_Rating==5.0,1,0)) %>%
+  group_by(Star_Rating) %>% 
+  filter(Star_Rating %in% c(3, 3.5, 4, 4.5, 5)) %>% 
+  summarize(count_30=sum(rounded_30), 
+            count_35=sum(rounded_35), 
+            count_40=sum(rounded_40), 
+            count_45=sum(rounded_45),
+            count_50=sum(rounded_50))%>% 
+  mutate(rounded_up=count_30 + count_35 + count_40 + count_45 + count_50) %>% 
+  select(Star_Rating, rounded_up)
+
+knitr::kable(rounded_counts, format = "latex", booktabs = TRUE, 
+             col.names = c("Star Rating", "Count"),
+             caption = "Count of Rounded Star Ratings in 2010")
+
+
+```
+\newpage 
+
+\noindent Question 6. Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.
+
+```{r} 
+#| echo=FALSE, fig.show='hold'
+q6
+
+```
+\newpage 
+
+\noindent Question 7. Repeat your results for bandwidhts of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for 3 and 3.5 stars). Show all of the results in a graph. How sensitive are your findings to the choice of bandwidth?
+
+```{r} 
+#| echo=FALSE, fig.show='hold'
+q7
+
+```
+\newpage
+
+\noindent Question 8. Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?
+
+```{r} 
+#| echo=FALSE, fig.show='hold' 
+q8
+
+```
+\newpage
+
+\noindent Question 9. Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
+```{r} 
+#| echo=FALSE, fig.show='hold' 
+kable(plan_characteristics_clean, caption = "Plan Characteristics Around Star Rating Thresholds")
+
+```
