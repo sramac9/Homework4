@@ -19,7 +19,7 @@ knitr:
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes, fixest,
                scales, gganimate, gapminder, gifski, png, tufte, plotly, OECD, knitr,
-               ggrepel, survey, foreign, devtools, pdftools, kableExtra, modelsummary,
+               ggrepel, survey, foreign, devtools, pdftools, modelsummary,
                kableExtra, broom)
 
             
@@ -106,6 +106,14 @@ knitr::kable(rounded_counts, format = "latex", booktabs = TRUE,
 
 ```{r} 
 #| echo=FALSE, fig.show='hold'
+q6 <- modelsummary(
+  models,
+  output = "latex",  # <--- This is the fix
+  keep = c("treatTRUE", "score"),
+  coef_map = c("treatTRUE" = "Rounded",
+               "score" = "Running Score"),
+  gof_map = c("nobs", "r.squared"), 
+  title = "Effect of Star Rating on Enrollment Near Thresholds")
 q6
 
 ```
@@ -130,8 +138,12 @@ q8
 \newpage
 
 \noindent Question 9. Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
-```{r} 
-#| echo=FALSE, fig.show='hold' 
-kable(plan_characteristics_clean, caption = "Plan Characteristics Around Star Rating Thresholds")
+```{r}
+#| echo=FALSE,
+#| results='asis'
 
+knitr::kable(plan_characteristics_clean, 
+             format = "latex", 
+             booktabs = TRUE, 
+             caption = "Plan Characteristics Around Star Rating Thresholds")
 ```
