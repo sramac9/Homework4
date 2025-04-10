@@ -22,8 +22,6 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes, 
                ggrepel, survey, foreign, devtools, pdftools, kableExtra, modelsummary,
                kableExtra, broom)
 
-
-
             
 ```
 
@@ -31,8 +29,8 @@ pacman::p_load(tidyverse, ggplot2, dplyr, lubridate, readr, readxl, hrbrthemes, 
 #| include: false
 #| eval: true
 
-final.data <- read_rds("/Users/sammyram/Documents/git/Github/Homework-4/submission1/data/output/final_ma_data.rds")
-load("/Users/sammyram/Documents/git/Github/Homework-4/submission2/hwk4_workspace.Rdata")
+final.data <- read_rds("/Users/sammyram/Documents/git/Homework4/data/output/final_ma_data.rds")
+load("/Users/sammyram/Documents/git/Homework4/submission2/hwk4_workspace.Rdata")
 ```
 The GitHub repository for this work is available [here](https://https://github.com/sramac9/Homework_4).
 
